@@ -34,10 +34,10 @@ static char *ft_save(char *save)
         return(NULL);
     }
     i++;
-    new_save = malloc(sizeof(char) * (ft_strlen(save) - i + 1));
+    new_save = (char *)malloc(sizeof(char) * (ft_strlen(save) - i + 1));
     if(!new_save)
         return(NULL);
-    while(save[i] && save[i] != '\n')
+    while(save[i])
         new_save[j++] = save[i++];
     new_save[j] = '\0';
     free(save);
@@ -57,9 +57,9 @@ char *ft_next_line(char *save)
     while(save[i] && save[i] != '\n')
         i++;
     if(save[i] == '\n')
-    line = malloc(sizeof(char) * (i + 2));
+        line = (char *)malloc(sizeof(char) * (i + 2));
     if (save[i] == '\0')
-    line = malloc(sizeof(char) * (i + 1));
+        line = (char *)malloc(sizeof(char) * (i + 1));
     if(!line)
         return(NULL);
     i = 0;
@@ -81,11 +81,11 @@ static char* readbuff(char *buff, char *save, int fd)
         if(n == -1)
             return(ft_free(save, buff));
         else if(n == 0)
-            break;
+            break ;
         buff[n] = '\0';
         temp = ft_strjoin(save, buff);
         if(!temp)
-            return(ft_free(save, buff));
+            return(ft_free(temp, buff));
         free(save);
         save = temp;        
     }
@@ -99,13 +99,16 @@ char *get_next_line(int fd)
     char                *line;
     char                *buff;
 
-    if(fd < 0 || BUFFER_SIZE == 0) //-1 if fd has an error
+    if(fd < 0 || BUFFER_SIZE <= 0) //-1 if fd has an error
         return (NULL);
     if(!save)
         save = ft_strdup("");
-    buff = malloc(sizeof(char)* (BUFFER_SIZE + 1)); //for null terminator
+    buff = malloc(sizeof(char) * (BUFFER_SIZE + 1)); //for null terminator
     if(!buff)
+    {
+        free(save);
         return(NULL);
+    }
     save =  readbuff(buff, save, fd);
     if(!save)
     {
