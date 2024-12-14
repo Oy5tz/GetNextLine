@@ -13,8 +13,10 @@
 
 static char*    ft_free(char *save, char *buff)
 {
-    free(save);
-    free(buff);
+    if (save)
+        free(save);
+    if (buff)
+        free(buff);
     return(NULL);
 }
 
@@ -26,6 +28,8 @@ static char *ft_save(char *save)
 
     i = 0;
     j = 0;
+    if (!save)
+        return(NULL);
     while(save[i] && save[i] != '\n')
         i++;
     if(!save[i])
@@ -52,7 +56,7 @@ char *ft_next_line(char *save)
 
     i = 0;
     j = 0;
-    if(!save[i] || !save)
+    if(!save || !save[i])
         return(NULL);
     while(save[i] && save[i] != '\n')
         i++;
@@ -85,7 +89,7 @@ static char* readbuff(char *buff, char *save, int fd)
         buff[n] = '\0';
         temp = ft_strjoin(save, buff);
         if(!temp)
-            return(ft_free(temp, buff));
+            return(ft_free(save, buff));
         free(save);
         save = temp;        
     }
@@ -102,20 +106,18 @@ char *get_next_line(int fd)
     if(fd < 0 || BUFFER_SIZE <= 0) //-1 if fd has an error
         return (NULL);
     if(!save)
+    {
         save = ft_strdup("");
+    if(!save)
+       return(NULL);
+    }
     buff = malloc(sizeof(char) * (BUFFER_SIZE + 1)); //for null terminator
     if(!buff)
-    {
-        free(save);
-        return(NULL);
-    }
+        return(ft_free(save, NULL));
     save =  readbuff(buff, save, fd);
     if(!save)
-    {
-        free(save);
         return(NULL);
-    }
-line = ft_next_line(save);
-save = ft_save(save);
-return(line);
+    line = ft_next_line(save);
+    save = ft_save(save);
+    return(line);
 }
